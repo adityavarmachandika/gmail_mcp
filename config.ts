@@ -3,10 +3,19 @@ import { google } from 'googleapis';
 import open from 'open';
 import fs from 'fs'
 import dotenv from 'dotenv'
-import path from 'path'
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { Request,Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
-dotenv.config({ path: path.resolve(__dirname, '../.env') })
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+
+dotenv.config({
+  path: path.resolve(__dirname, '../.env'), // Adjusting the directory for the env varibles
+});
 
 //required credentials for the oauth login
 const GOOGLE_CLIENT_ID=process.env.GOOGLE_CLIENT_ID;
@@ -57,6 +66,7 @@ const authenticate=async ():Promise<OAuth2Client>=>{
 
     
   }
+
 
 }
 
