@@ -1,8 +1,4 @@
-import { z } from "zod";
-import { google } from 'googleapis';
-import authenticate from '../config.js'
-
-
+import { gmail_v1 } from "googleapis";
 
 export interface EmailData {
     subject: string;
@@ -34,15 +30,14 @@ interface FullMessage {
     payload: MessagePayload;
 }
 
-const getGmailMessages = async (): Promise<EmailData[]> => {
-    const auth = await authenticate();
-    const gmail = google.gmail({ version: 'v1', auth });
+const getGmailMessages = async (gmail:gmail_v1.Gmail,size:number): Promise<EmailData[]> => {
+   
 
     try {
         // Get list of messages
         const res = await gmail.users.messages.list({
             userId: 'me',
-            maxResults: 10
+            maxResults: size
         });
 
         if (!res.data.messages) {
@@ -144,5 +139,6 @@ function cleanBody(body: string): string {
         .replace(/\n{3,}/g, '\n\n')
         .trim();
 }
+
 
 export default getGmailMessages
