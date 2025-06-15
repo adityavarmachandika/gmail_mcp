@@ -33,8 +33,20 @@ const client=new google.auth.OAuth2(GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GOOGLE
 const authenticate=async ():Promise<OAuth2Client>=>{
 
   //check if the user is already loged in recently
+
+  let usedtoken:boolean=false;
+
   if(fs.existsSync('tokens.json')){
-    client.setCredentials(JSON.parse(fs.readFileSync('tokens.json').toString()))
+    const tokens=JSON.parse(fs.readFileSync('tokens.json').toString())
+    const expiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : null;
+    if (expiryDate && expiryDate > new Date()) {  
+      usedtoken=true;
+      client.setCredentials(tokens);
+      console.log("using existing token")
+    }
+  }
+
+  if(usedtoken){
     return client;
   }
   else{
@@ -69,5 +81,4 @@ const authenticate=async ():Promise<OAuth2Client>=>{
 
 
 }
-
 export default authenticate

@@ -1,11 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import getGmailMessages from "./utils/get_latest_gmail.js";
-import { EmailData } from "./utils/get_latest_gmail.js";
+import getGmailMessages from "./utils/get_mails.js";
+import { EmailData } from "./utils/get_mails.js";
 import { z } from "zod";
 import send_mails from "./utils/send_mails.js";
 import authenticate from "./config.js";
-import { gmail_v1, google, oauth2_v2 } from "googleapis";
+import { gmail_v1, google } from "googleapis";
 
 // Create server instance
 const server = new McpServer({
@@ -19,12 +19,14 @@ const server = new McpServer({
 
 let gmail:gmail_v1.Gmail
 
+
 //tool to get the latest emails
-server.tool("summerize_mail","summerize the latest 10 mails from the user gmail account",{
-  size:z.number().describe("number of mails that is requested by the user to be fetched")
+server.tool("get_mail","get the mails from the gmail api (latest or using keyword) based on the user preference and highlight that you feel important",{
+  size:z.number().describe("number of mails that is requested by the user to be fetched"),
+  queryString:z.string().describe("Gmail search query (e.g., keyword or date). Leave empty to fetch recent emails.")
 },
-  async ({size})=>{
-    const emails:EmailData[]=await getGmailMessages(gmail,size)
+async ({queryString,size})=>{
+  const emails:EmailData[]=await getGmailMessages(gmail,size,queryString)
 
     if(!emails){
       return{
@@ -69,33 +71,28 @@ server.tool("send_email","write an email to user by providing the subject body a
       result="done"
     else
     result="not done"
-
-      return {
-        content:[
+  
+  return {
+    content:[
           {
             type:"text",
             text:result
           }
         ]
       }
+      
+    }
+  )
+  
+  async function main() {
     
-  }
-)
-
-
-
-
-
-async function main() {
-
-  try{
-    const auth= await authenticate();
-    gmail = google.gmail({ version: 'v1', auth });
+    try{
+      const auth= await authenticate();
+      gmail = google.gmail({ version: 'v1', auth });
   }
   catch(error){
     console.log("auth error", error)
   }
-
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

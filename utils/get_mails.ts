@@ -30,13 +30,14 @@ interface FullMessage {
     payload: MessagePayload;
 }
 
-const getGmailMessages = async (gmail:gmail_v1.Gmail,size:number): Promise<EmailData[]> => {
+const getGmailMessages = async (gmail:gmail_v1.Gmail,size:number,queryString:string): Promise<EmailData[]> => {
    
 
     try {
         // Get list of messages
         const res = await gmail.users.messages.list({
             userId: 'me',
+            q:queryString,
             maxResults: size
         });
 

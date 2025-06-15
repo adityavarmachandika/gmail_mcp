@@ -1,5 +1,4 @@
 import { gmail_v1, google } from "googleapis";
-import authenticate from "../config.js";
 
 const send_mails= async (body:string, to:string, subject:string, gmail:gmail_v1.Gmail)=>{
     const message = [
@@ -14,7 +13,7 @@ const send_mails= async (body:string, to:string, subject:string, gmail:gmail_v1.
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
-    .replace(/=+$/, ''); 
+    .replace(/=+$/, '');
 
     const issent=gmail.users.messages.send({
         userId:'me',
@@ -22,8 +21,6 @@ const send_mails= async (body:string, to:string, subject:string, gmail:gmail_v1.
             raw:encodedmessage
         }
     })
-    console.log(issent)
     return (await issent).status
-}
-
+}   
 export default send_mails
